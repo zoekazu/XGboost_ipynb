@@ -78,6 +78,8 @@ print(confusion_matrix(y_test, y_test_pred))
 print(classification_report(y_test, y_test_pred))
 
 # %%
+
+y_test_cross_pred_list = []
 for i in range(1, 10, 2):
     train_list = list(df_connected.index[(df_connected['image_No'] != i) &
                                          (df_connected['image_No'] != i+1)])
@@ -105,6 +107,16 @@ for i in range(1, 10, 2):
     y_test_cross_pred = cv_cross.predict(x_test_cross)
     print(confusion_matrix(y_test_cross, y_test_cross_pred))
     print(classification_report(y_test_cross, y_test_cross_pred))
+    
+    y_test_cross_pred_list.extend(list(y_test_cross_pred))
 
 
 # %%
+y_test_cross_pred_list
+#%%
+df_connected['xgboost_result'] = y_test_cross_pred_list
+df_connected.head()
+
+#%%
+df_connected.to_pickle('./pandas_df_connected_xgboost.pkl')
+
