@@ -20,14 +20,21 @@ import xgboost as xgb
 
 
 # %%
-df_connected = pd.read_pickle('./pandas_df_connected_pin.pkl')
+df_connected = pd.read_pickle('./pandas_df_connected_ignore_pin.pkl')
 df_connected.head()
 
 
 # %%
-x = df_connected.loc[:, ('width', 'height', 'area', 'pixle_mean', 'pixel_std',
+x = df_connected.loc[:, ('width', 'height', 'area',
+                         'pixle_mean', 'pixel_std',
                          'pixel_var', 'pixel_min',
-                         'pixel_max', 'pixel_median',)].values
+                         'pixel_max', 'pixel_median',
+                         'pixle_mean_ar3', 'pixel_std_ar3',
+                         'pixel_var_ar3', 'pixel_min_ar3',
+                         'pixel_max_ar3', 'pixel_median_ar3',
+                         'pixle_mean_ar5', 'pixel_std_ar5',
+                         'pixel_var_ar5', 'pixel_min_ar5',
+                         'pixel_max_ar5', 'pixel_median_ar5')].values
 x_org = x.copy()
 x.shape
 
@@ -92,8 +99,16 @@ sns.barplot(
     x=cv_best.feature_importances_[ranking],
     y=df_connected.loc
     [:,
-     ('width', 'height', 'area', 'pixle_mean', 'pixel_std', 'pixel_var', 'pixel_min', 'pixel_max',
-      'pixel_median',)].columns[ranking],
+     ('width', 'height', 'area',
+                         'pixle_mean', 'pixel_std',
+                         'pixel_var', 'pixel_min',
+                         'pixel_max', 'pixel_median',
+                         'pixle_mean_ar3', 'pixel_std_ar3',
+                         'pixel_var_ar3', 'pixel_min_ar3',
+                         'pixel_max_ar3', 'pixel_median_ar3',
+                         'pixle_mean_ar5', 'pixel_std_ar5',
+                         'pixel_var_ar5', 'pixel_min_ar5',
+                         'pixel_max_ar5', 'pixel_median_ar5')].columns[ranking],
     orient='h')
 plt.tight_layout()
 # plt.show()
@@ -102,9 +117,16 @@ plt.savefig('xgboost.png')
 # %%
 ranking
 # %%
-x_train_rank = df_connected.loc[:, np.array(['width', 'height', 'area', 'pixle_mean', 'pixel_std',
-                                             'pixel_var', 'pixel_min',
-                                             'pixel_max', 'pixel_median'])[ranking[:4]]].values
+x_train_rank = df_connected.loc[:, np.array(['width', 'height', 'area',
+                         'pixle_mean', 'pixel_std',
+                         'pixel_var', 'pixel_min',
+                         'pixel_max', 'pixel_median',
+                         'pixle_mean_ar3', 'pixel_std_ar3',
+                         'pixel_var_ar3', 'pixel_min_ar3',
+                         'pixel_max_ar3', 'pixel_median_ar3',
+                         'pixle_mean_ar5', 'pixel_std_ar5',
+                         'pixel_var_ar5', 'pixel_min_ar5',
+                         'pixel_max_ar5', 'pixel_median_ar5'])[ranking[:4]]].values
 x_train_rank
 # %%
 
@@ -146,7 +168,7 @@ df_connected['xgboost_result'] = y_test_cross_pred_list
 df_connected.head()
 
 # %%
-df_connected.to_pickle('./pandas_df_connected_xgboost.pkl')
+df_connected.to_pickle('./pandas_df_connected_ignore_xgboost.pkl')
 
 
 # %%
@@ -197,8 +219,16 @@ def f_importances(coef, names, top=-1):
 
 
 # %%
-feature_name = ['width', 'height', 'area', 'pixle_mean', 'pixel_std',
-                'pixel_var', 'pixel_min',   'pixel_max', 'pixel_median']
+feature_name = ['width', 'height', 'area',
+                         'pixle_mean', 'pixel_std',
+                         'pixel_var', 'pixel_min',
+                         'pixel_max', 'pixel_median',
+                         'pixle_mean_ar3', 'pixel_std_ar3',
+                         'pixel_var_ar3', 'pixel_min_ar3',
+                         'pixel_max_ar3', 'pixel_median_ar3',
+                         'pixle_mean_ar5', 'pixel_std_ar5',
+                         'pixel_var_ar5', 'pixel_min_ar5',
+                         'pixel_max_ar5', 'pixel_median_ar5']
 feature_name
 # %%
 svm_best.coef_
@@ -267,8 +297,8 @@ df_connected.head()
 # %%
 df_connected[df_connected['true'] == True]
 
-#%%
-df_connected.to_pickle('./pandas_df_connected_analsys.pkl')
+# %%
+df_connected.to_pickle('./pandas_df_connected_ignore_analsys.pkl')
 # %%
 # %%
 x_train_nn = x_org.copy()
@@ -282,17 +312,17 @@ data_ratio_nn
 # %%
 x_train_nn_weights = np.where(y_train_nn, data_ratio_nn, 1)
 x_train_nn_weights
-#%%
+# %%
+
 
 def create_model(optimizer='adam'):
     model = Sequential()
     model.add(
         Dense(
-            9,
-            input_dim=9,
+            21,
+            input_dim=21,
             kernel_initializer='normal', activation='relu'))
-    model.add(Dense(128, kernel_initializer='normal', activation='relu'))
-    model.add(Dense(128, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(10, kernel_initializer='normal', activation='relu'))
     model.add(Dense(1, kernel_initializer='normal'))
 
     model.compile(loss='binary_crossentropy', optimizer=optimizer)
@@ -303,11 +333,11 @@ def create_model(optimizer='adam'):
 model = KerasClassifier(build_fn=create_model, verbose=0)
 optimizer = ['SGD', 'Adam']
 batch_size = [10, 30, 50]
-epochs = [10, 50, 100,1000]
+epochs = [10, 50, 100, 1000]
 param_grid = dict(optimizer=optimizer, batch_size=batch_size, epochs=epochs)
-nn_cv = GridSearchCV(estimator=model, param_grid=param_grid,  scoring='recall',n_jobs=-1, cv=5)
+nn_cv = GridSearchCV(estimator=model, param_grid=param_grid,  scoring='recall', n_jobs=-1, cv=5)
 nn_cv.fit(x_train_nn, y_train_nn, sample_weight=x_train_nn_weights)
-#%%
+# %%
 print(nn_cv.best_params_, nn_cv.best_score_)
 # %%
 nn_best = KerasClassifier(build_fn=create_model, verbose=0, **nn_cv.best_params_)
@@ -318,4 +348,4 @@ y_train_nn_pred = nn_best.predict(x_train_nn)
 print(confusion_matrix(y_train_nn, y_train_nn_pred))
 print(classification_report(y_train_nn, y_train_nn_pred))
 
-#%%
+# %%
