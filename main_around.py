@@ -20,21 +20,28 @@ import xgboost as xgb
 
 
 # %%
-df_connected = pd.read_pickle('./pandas_df_connected_ignore_pin.pkl')
+df_connected = pd.read_pickle('./pandas_df_connected_diff_ignore_pin.pkl')
 df_connected.head()
-
+#%%
+df_connected.columns
 
 # %%
-x = df_connected.loc[:, ('width', 'height', 'area',
-                         'pixle_mean', 'pixel_std',
-                         'pixel_var', 'pixel_min',
-                         'pixel_max', 'pixel_median',
-                         'pixle_mean_ar3', 'pixel_std_ar3',
-                         'pixel_var_ar3', 'pixel_min_ar3',
-                         'pixel_max_ar3', 'pixel_median_ar3',
-                         'pixle_mean_ar5', 'pixel_std_ar5',
-                         'pixel_var_ar5', 'pixel_min_ar5',
-                         'pixel_max_ar5', 'pixel_median_ar5')].values
+x = df_connected.loc[:, ('width', 'height','area', 
+                'pixel_mean', 'pixel_std',
+                'pixel_var', 'pixel_min',
+                'pixel_max', 'pixel_median',
+                'pixel_mean_ar3', 'pixel_std_ar3',
+                'pixel_var_ar3', 'pixel_min_ar3',
+                'pixel_max_ar3', 'pixel_median_ar3',
+                'pixel_mean_ar5', 'pixel_std_ar5',
+                'pixel_var_ar5', 'pixel_min_ar5',
+                'pixel_max_ar5', 'pixel_median_ar5',
+                'pixel_mean_ar3_diff', 'pixel_std_ar3_diff',
+                'pixel_var_ar3_diff', 'pixel_min_ar3_diff',
+                'pixel_max_ar3_diff', 'pixel_median_ar3_diff',
+                'pixel_mean_ar5_diff', 'pixel_std_ar5_diff',
+                'pixel_var_ar5_diff', 'pixel_min_ar5_diff',
+                'pixel_max_ar5_diff', 'pixel_median_ar5_diff')].values
 x_org = x.copy()
 x.shape
 
@@ -99,16 +106,22 @@ sns.barplot(
     x=cv_best.feature_importances_[ranking],
     y=df_connected.loc
     [:,
-     ('width', 'height', 'area',
-                         'pixle_mean', 'pixel_std',
-                         'pixel_var', 'pixel_min',
-                         'pixel_max', 'pixel_median',
-                         'pixle_mean_ar3', 'pixel_std_ar3',
-                         'pixel_var_ar3', 'pixel_min_ar3',
-                         'pixel_max_ar3', 'pixel_median_ar3',
-                         'pixle_mean_ar5', 'pixel_std_ar5',
-                         'pixel_var_ar5', 'pixel_min_ar5',
-                         'pixel_max_ar5', 'pixel_median_ar5')].columns[ranking],
+     ('width', 'height','area', 
+                'pixel_mean', 'pixel_std',
+                'pixel_var', 'pixel_min',
+                'pixel_max', 'pixel_median',
+                'pixel_mean_ar3', 'pixel_std_ar3',
+                'pixel_var_ar3', 'pixel_min_ar3',
+                'pixel_max_ar3', 'pixel_median_ar3',
+                'pixel_mean_ar5', 'pixel_std_ar5',
+                'pixel_var_ar5', 'pixel_min_ar5',
+                'pixel_max_ar5', 'pixel_median_ar5',
+                'pixel_mean_ar3_diff', 'pixel_std_ar3_diff',
+                'pixel_var_ar3_diff', 'pixel_min_ar3_diff',
+                'pixel_max_ar3_diff', 'pixel_median_ar3_diff',
+                'pixel_mean_ar5_diff', 'pixel_std_ar5_diff',
+                'pixel_var_ar5_diff', 'pixel_min_ar5_diff',
+                'pixel_max_ar5_diff', 'pixel_median_ar5_diff')].columns[ranking],
     orient='h')
 plt.tight_layout()
 # plt.show()
@@ -117,16 +130,22 @@ plt.savefig('xgboost.png')
 # %%
 ranking
 # %%
-x_train_rank = df_connected.loc[:, np.array(['width', 'height', 'area',
-                         'pixle_mean', 'pixel_std',
-                         'pixel_var', 'pixel_min',
-                         'pixel_max', 'pixel_median',
-                         'pixle_mean_ar3', 'pixel_std_ar3',
-                         'pixel_var_ar3', 'pixel_min_ar3',
-                         'pixel_max_ar3', 'pixel_median_ar3',
-                         'pixle_mean_ar5', 'pixel_std_ar5',
-                         'pixel_var_ar5', 'pixel_min_ar5',
-                         'pixel_max_ar5', 'pixel_median_ar5'])[ranking[:4]]].values
+x_train_rank = df_connected.loc[:, np.array(['width', 'height','area', 
+                'pixel_mean', 'pixel_std',
+                'pixel_var', 'pixel_min',
+                'pixel_max', 'pixel_median',
+                'pixel_mean_ar3', 'pixel_std_ar3',
+                'pixel_var_ar3', 'pixel_min_ar3',
+                'pixel_max_ar3', 'pixel_median_ar3',
+                'pixel_mean_ar5', 'pixel_std_ar5',
+                'pixel_var_ar5', 'pixel_min_ar5',
+                'pixel_max_ar5', 'pixel_median_ar5',
+                'pixel_mean_ar3_diff', 'pixel_std_ar3_diff',
+                'pixel_var_ar3_diff', 'pixel_min_ar3_diff',
+                'pixel_max_ar3_diff', 'pixel_median_ar3_diff',
+                'pixel_mean_ar5_diff', 'pixel_std_ar5_diff',
+                'pixel_var_ar5_diff', 'pixel_min_ar5_diff',
+                'pixel_max_ar5_diff', 'pixel_median_ar5_diff'])[ranking[:4]]].values
 x_train_rank
 # %%
 
@@ -168,7 +187,7 @@ df_connected['xgboost_result'] = y_test_cross_pred_list
 df_connected.head()
 
 # %%
-df_connected.to_pickle('./pandas_df_connected_ignore_xgboost.pkl')
+df_connected.to_pickle('./pandas_df_connected_diff_ignore_xgboost.pkl')
 
 
 # %%
@@ -214,21 +233,28 @@ def f_importances(coef, names, top=-1):
 
     plt.barh(range(top), imp[::-1][0:top], align='center')
     plt.yticks(range(top), names[::-1][0:top])
+    plt.tight_layout()
     plt.savefig('svm_importance.png')
     return names
 
 
 # %%
-feature_name = ['width', 'height', 'area',
-                         'pixle_mean', 'pixel_std',
-                         'pixel_var', 'pixel_min',
-                         'pixel_max', 'pixel_median',
-                         'pixle_mean_ar3', 'pixel_std_ar3',
-                         'pixel_var_ar3', 'pixel_min_ar3',
-                         'pixel_max_ar3', 'pixel_median_ar3',
-                         'pixle_mean_ar5', 'pixel_std_ar5',
-                         'pixel_var_ar5', 'pixel_min_ar5',
-                         'pixel_max_ar5', 'pixel_median_ar5']
+feature_name = ['width', 'height','area', 
+                'pixel_mean', 'pixel_std',
+                'pixel_var', 'pixel_min',
+                'pixel_max', 'pixel_median',
+                'pixel_mean_ar3', 'pixel_std_ar3',
+                'pixel_var_ar3', 'pixel_min_ar3',
+                'pixel_max_ar3', 'pixel_median_ar3',
+                'pixel_mean_ar5', 'pixel_std_ar5',
+                'pixel_var_ar5', 'pixel_min_ar5',
+                'pixel_max_ar5', 'pixel_median_ar5',
+                'pixel_mean_ar3_diff', 'pixel_std_ar3_diff',
+                'pixel_var_ar3_diff', 'pixel_min_ar3_diff',
+                'pixel_max_ar3_diff', 'pixel_median_ar3_diff',
+                'pixel_mean_ar5_diff', 'pixel_std_ar5_diff',
+                'pixel_var_ar5_diff', 'pixel_min_ar5_diff',
+                'pixel_max_ar5_diff', 'pixel_median_ar5_diff']
 feature_name
 # %%
 svm_best.coef_
@@ -298,7 +324,7 @@ df_connected.head()
 df_connected[df_connected['true'] == True]
 
 # %%
-df_connected.to_pickle('./pandas_df_connected_ignore_analsys.pkl')
+df_connected.to_pickle('./pandas_df_connected_diff_ignore_analsys.pkl')
 # %%
 # %%
 x_train_nn = x_org.copy()
@@ -319,10 +345,10 @@ def create_model(optimizer='adam'):
     model = Sequential()
     model.add(
         Dense(
-            21,
-            input_dim=21,
+            33,
+            input_dim=33,
             kernel_initializer='normal', activation='relu'))
-    model.add(Dense(10, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(16, kernel_initializer='normal', activation='relu'))
     model.add(Dense(1, kernel_initializer='normal'))
 
     model.compile(loss='binary_crossentropy', optimizer=optimizer)
@@ -349,3 +375,47 @@ print(confusion_matrix(y_train_nn, y_train_nn_pred))
 print(classification_report(y_train_nn, y_train_nn_pred))
 
 # %%
+y_test_cross_pred_list = []
+for i in range(1, 10, 2):
+    train_list = list(df_connected.index[(df_connected['image_No'] != i) &
+                                         (df_connected['image_No'] != i+1)])
+    test_list = list(df_connected.index[(df_connected['image_No'] == i) |
+                                        (df_connected['image_No'] == i+1)])
+
+    x_train_cross = x_train[train_list, :].copy()
+    y_train_cross = y_train[train_list].copy()
+
+    x_test_cross = x_train[test_list, :]
+    y_test_cross = y_train[test_list]
+
+    data_ratio = np.count_nonzero(y_train_cross == False) // np.count_nonzero(y_train_cross) + 1
+    x_train_nn_weights = np.where(y_train_cross, data_ratio, 1)
+
+    nn_cross = KerasClassifier(build_fn=create_model, verbose=0, **nn_cv.best_params_)
+    nn_cross.fit(x_train_cross, y_train_cross, sample_weight=x_train_nn_weights)
+   
+    y_test_cross_pred = nn_cross.predict(x_test_cross)
+    print(confusion_matrix(y_test_cross, y_test_cross_pred))
+    print(classification_report(y_test_cross, y_test_cross_pred))
+
+    y_test_cross_pred_list.extend(list(y_test_cross_pred))
+
+#%%
+list_xgboost = df_connected.xgboost_result.values
+list_xgboost
+
+#%%
+list_svm = df_connected.svm_result.values
+list_svm
+
+#%%
+list_all_result = np.logical_or(list_xgboost, list_svm)
+list_all_result
+
+
+
+#%%
+print(confusion_matrix(y_org, list_all_result))
+print(classification_report(y_org, list_all_result))
+
+#%%
